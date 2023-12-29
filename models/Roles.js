@@ -26,15 +26,8 @@ const Roles = conectarDB.define('roles', {
             }
         }
     },
-    createdAt: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW
-    },
-    updatedAt: {
-        type: DataTypes.DATE,
-        allowNull: true,
-    }
+},{
+    timestamps: true,
 });
 
 export default Roles;

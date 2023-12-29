@@ -26,7 +26,10 @@ const Users = conectarDB.define('users', {
     email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
+        unique: {
+            args: true,
+            msg: 'El correo electrónico ya está registrado'
+        },
         validate: {
             isEmail: {
                 msg: 'Debe ser un correo electrónico válido'
@@ -37,9 +40,9 @@ const Users = conectarDB.define('users', {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-            len: {
-                args: [6, 128],
-                msg: 'La contraseña debe tener entre 6 y 128 caracteres'
+            is: {
+                args: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#?!@$%^&*-])[A-Za-z\d#?!@$%^&*-]{8,}$/,
+                msg: 'La contraseña debe tener minimo 8 caracteres, una mayuscula, una minuscula, un numero y un caracter especial'
             }
         }
     },
@@ -62,23 +65,14 @@ const Users = conectarDB.define('users', {
         type: DataTypes.BOOLEAN, 
         defaultValue: false
     },
-    createdAt: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW
-    },
-    updatedAt: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW
-    }
 }, {
     hooks: {
         beforeCreate: async (user) => {
             const salt = await bcrypt.genSalt(10);
             user.password = await bcrypt.hash(user.password, salt);
         },
-    }
+    },
+    timestamps: true,
 });
 
 Users.prototype.verificarPassword = function(password) {
