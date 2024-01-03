@@ -1,6 +1,7 @@
 import { Sequelize, DataTypes  } from "sequelize";
 import bcrypt from 'bcrypt'
 import conectarDB from '../config/db.js';
+import Roles from "./Roles.js";
 
 const Users = conectarDB.define('users', {
     id: {
@@ -78,5 +79,7 @@ const Users = conectarDB.define('users', {
 Users.prototype.verificarPassword = function(password) {
     return bcrypt.compareSync(password, this.password);
 }
+
+Users.belongsTo(Roles, { foreignKey: 'id_role', as: 'role' });
 
 export default Users;

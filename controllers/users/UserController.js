@@ -8,7 +8,7 @@ import Sequelize from "../../config/db.js";
 // Obtener todos los usuarios
 export const getUsers = async (req, res, next) => {
     try {
-        const users = await Users.findAll();
+        const users = await Users.findAll({ include: 'role' });
         
         res.json({
             data: users

@@ -58,10 +58,18 @@ export const newAddress = async (req, res) => {
 
 export const setDefaultAddress = async (req, res) => {
     const transaction = await Sequelize.transaction();
-    const { id } = req.params;
-    const { id_user } = req.body;
+    const { id_user, id } = req.body;
 
     try {
+        // verificar si la direccion pertenece al usuario
+        const address = await UserAddress.findOne({ where: { id_user, id } });
+        
+        if(!address) {
+            return res.status(404).json({
+                msg: 'La dirección no existe'
+            });
+        }
+
         // poner todas las direcciones del usuario en false
         await UserAddress.update({ 
             default: false 
@@ -97,8 +105,7 @@ export const deleteAddress = async (req, res) => {
         const address = await UserAddress.destroy({ where: { id } });
 
         res.json({
-            msg: 'Dirección eliminada correctamente',
-            data: address
+            msg: 'Dirección eliminada correctamente'
         });
     } catch (error) {
         res.status(500).json({ msg: error.errors[0].message });
