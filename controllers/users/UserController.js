@@ -1,8 +1,9 @@
-import Users from "../models/Users.js";
-import generarJWT from "../helpers/generarJWT.js";
-import generarId from "../helpers/generarId.js";
-import { registerEmail } from "../helpers/email.js";
-import Sequelize from "../config/db.js";
+import bcrypt from "bcrypt";
+import Users from "../../models/Users.js";
+import generarJWT from "../../helpers/generarJWT.js";
+import generarId from "../../helpers/generarId.js";
+import { emailRememberPassword, registerEmail } from "../../helpers/email.js";
+import Sequelize from "../../config/db.js";
 
 // Obtener todos los usuarios
 export const getUsers = async (req, res, next) => {
@@ -21,7 +22,7 @@ export const getUsers = async (req, res, next) => {
 
 // Registrar un usuario
 export const registerUser = async (req, res, next) => {
-    const { name, email, password, roleId } = req.body;
+    const { name, email, password, id_role } = req.body;
     const transaction = await Sequelize.transaction();
     try {
         const user = await Users.create({ 
@@ -81,7 +82,7 @@ export const authUser = async (req, res, next) => {
             id: usuario.id,
             name: usuario.name,
             email: usuario.email,
-            token: generarJWT(usuario.id, usuario.roleId)
+            token: generarJWT(usuario.id, usuario.id_role)
         });
     } else {
         const error = new Error('Contraseña incorrecta');
@@ -92,6 +93,7 @@ export const authUser = async (req, res, next) => {
 export const confirmAccount = async (req, res, next) => {
     const { token } = req.params;
     const userConfirm = await Users.findOne({ where: { token } });
+    const transaction = await Sequelize.transaction();
 
     if(!userConfirm) {
         const error = new Error('El usuario no existe');
@@ -101,20 +103,23 @@ export const confirmAccount = async (req, res, next) => {
     try {
         userConfirm.confirmed = true;
         userConfirm.token = "";
-        await userConfirm.save();
+        await userConfirm.save({ transaction });
+        await transaction.commit();
 
         res.json({
             msg: 'Usuario confirmado correctamente'
         });
     } catch (error) {
+        await transaction.rollback();
         return res.status(500).json({ msg: error.message });
     }
 }
 
 // recuperar contraseña
-export const olvidePassword = async (req, res) => {
+export const rememberPassword = async (req, res) => {
     const { email } = req.body;
     const user = await Users.findOne({ where: { email } });
+    const transaction = await Sequelize.transaction();
 
     if(!user) {
         const error = new Error('El usuario no existe');
@@ -123,8 +128,67 @@ export const olvidePassword = async (req, res) => {
 
     try {
         user.token = generarId();
-        await
+        await user.save({
+            transaction
+        });
+
+        emailRememberPassword({
+            email: user.email,
+            name: user.name,
+            token: user.token
+        });
+
+        await transaction.commit();
+
+        res.json({
+            msg: 'Hemos enviado un correo para recuperar tu contraseña'
+        });
     } catch (error) {
+        await transaction.rollback();
         return res.status(500).json({ msg: error.message });
+    }
+}
+
+export const checkToken = async (req, res) => {
+    const { token } = req.params;
+    const user = await Users.findOne({ where: { token } });
+
+    if(user) {
+        res.json({
+            msg: 'Token valido y el usuario existe'
+        });
+    } else {
+        const error = new Error('Token invalido');
+        return res.status(404).json({ msg: error.message });
+    }
+}
+
+export const newPassword = async (req, res) => {
+    const { token } = req.params;
+    const { password } = req.body;
+    const transaction = await Sequelize.transaction();
+
+    const user = await Users.findOne({ where: { token } });
+
+    if(user) {
+        user.password = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
+        user.token = "";
+
+        try {
+            await user.save({
+                transaction
+            });
+
+            await transaction.commit();
+            res.json({
+                msg: 'Contraseña actualizada correctamente'
+            });
+        } catch (error) {
+            await transaction.rollback();
+            res.status(500).json({ msg: error.errors[0].message });
+        }
+    } else {
+        const error = new Error('Token invalido');
+        return res.status(404).json({ msg: error.message });
     }
 }

@@ -4,10 +4,11 @@ import cors from 'cors';
 import connectDB from './config/db.js';
 import RolesRoute from './routes/RolesRoutes.js';
 import UserRoutes from './routes/UserRoutes.js';
-
+import UserAddressRoutes from './routes/UserAddressRoutes.js';
 //modelos 
 import Roles from './models/Roles.js';
 import Users from './models/Users.js';
+import UserAddress from './models/UserAddress.js';
 
 connectDB.sync()
     .then(() => console.log('DB conectada'))
@@ -21,6 +22,7 @@ dotenv.config();
 
 app.use("/api/roles", RolesRoute)
 app.use("/api/users", UserRoutes)
+app.use("/api/users/address", UserAddressRoutes);
 
 const PORT = process.env.PORT || 4000;
 

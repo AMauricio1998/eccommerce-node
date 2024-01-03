@@ -50,7 +50,7 @@ const Users = conectarDB.define('users', {
         type: DataTypes.STRING,
         allowNull: true,
     },
-    roleId: {
+    id_role: {
         type: DataTypes.UUID,
         references: {
             model: 'Roles', // nombre de la tabla de roles
