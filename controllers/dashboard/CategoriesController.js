@@ -29,7 +29,7 @@ export const getCategory = async (req, res, next) => {
     
         res.json({
             category
-        });
+        }); 
     } catch (error) {
         res.status(500).json({
             msg: 'Ocurrio un error al obtener la categoria'
