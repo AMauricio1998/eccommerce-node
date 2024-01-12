@@ -89,6 +89,7 @@ const UserAddress = conectarDB.define('user_address', {
     },
 },{
     timestamps: true,
+    freezeTableName: true,
 });
 
 export default UserAddress;

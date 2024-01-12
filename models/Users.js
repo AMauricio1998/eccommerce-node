@@ -2,6 +2,7 @@ import { Sequelize, DataTypes  } from "sequelize";
 import bcrypt from 'bcrypt'
 import conectarDB from '../config/db.js';
 import Roles from "./Roles.js";
+import UserAddress from "./UserAddress.js";
 
 const Users = conectarDB.define('users', {
     id: {
@@ -81,5 +82,6 @@ Users.prototype.verificarPassword = function(password) {
 }
 
 Users.belongsTo(Roles, { foreignKey: 'id_role', as: 'role' });
+Users.hasMany(UserAddress, { as: 'address', foreignKey: 'id_user' });
 
 export default Users;

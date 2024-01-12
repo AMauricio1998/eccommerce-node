@@ -1,7 +1,7 @@
 import { Sequelize, DataTypes } from "sequelize";
 import conectarDB from '../config/db.js';
-  
-const Departments = conectarDB.define('departments', {
+
+const Warehouses = conectarDB.define('warehouses', {
     id: {
         type: Sequelize.UUID,
         primaryKey: true,
@@ -22,16 +22,18 @@ const Departments = conectarDB.define('departments', {
             }
         }
     },
-    slug: {
-        type: DataTypes.STRING(60),
-        allowNull: false,
-        unique: {
-            args: true,
-            msg: 'El slug ya está registrado'
-        },
+    description:{ 
+        type: DataTypes.TEXT,
+        allowNull: true,
+        validate: {
+            notEmpty: {
+                msg: 'La descripción es obligatoria'
+            }
+        }
     },
 }, {
     timestamps: true,
+    freezeTableName: true
 });
 
-export default Departments;
+export default Warehouses;

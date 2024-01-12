@@ -50,8 +50,9 @@ const Categories = conectarDB.define('categories', {
     },
     id_department: {
         type: DataTypes.UUID,
+        allowNull: false,
         references: {
-            model: 'departments',
+            model: 'Departments',
             key: 'id'
         }
     }

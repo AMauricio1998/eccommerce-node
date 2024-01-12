@@ -51,6 +51,7 @@ export const newAddress = async (req, res) => {
             data: address
         });
     } catch (error) {
+        console.log(error);
         await transaction.rollback();
         res.status(500).json({ msg: error.errors[0].message });
     }
