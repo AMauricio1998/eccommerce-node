@@ -1,6 +1,6 @@
 import express from 'express';
 import checkAuth from '../middleware/checkAuth.js';
-import { createProduct, getProduct, getProductsFromCategory, getProductsFromDepartment } from '../controllers/dashboard/ProductsController.js';
+import { createProduct, getProduct, getProductsFromCategory, getProductsFromDepartment } from '../controllers/dashboard/products/ProductsController.js';
 
 const router = express.Router();
 

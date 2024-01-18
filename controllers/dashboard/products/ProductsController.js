@@ -1,9 +1,9 @@
-import storage from '../../utils/cloud_storage.js';
-import Sequelize from "../../config/db.js";
-import Departments from '../../models/Departments.js';
-import Categories from '../../models/Categories.js';
-import Brands from '../../models/Brands.js';
-import Products from '../../models/Products.js';
+import storage from '../../../utils/cloud_storage.js';
+import Sequelize from "../../../config/db.js";
+import Departments from '../../../models/Departments.js';
+import Categories from '../../../models/Categories.js';
+import Brands from '../../../models/Brands.js';
+import Products from '../../../models/Products.js';
 
 export const getProductsFromDepartment = async (req, res) =>{
     const { id_department } = req.params;
@@ -59,27 +59,33 @@ export const getProduct = async (req, res) => {
 export const createProduct = async (req, res) => {
     const transaction = await Sequelize.transaction();
     try {
-        const { name, slug, description, price, id_brand, id_department, id_category, status } = req.body;
-
+        const { name, slug, description, image_default,price, id_department, id_category, status, in_discount, discount, system_code } = req.body;
+            
         const product = await Products.create({ 
             name, 
             slug, 
-            description, 
+            description,
+            image_default, 
             price, 
-            id_brand, 
             id_department, 
             id_category, 
-            status
+            status,
+            in_discount,
+            discount,
+            system_code
         }, {
             fields: [
                 'name', 
                 'slug', 
-                'description', 
+                'description',
+                'image_default', 
                 'price', 
-                'id_brand', 
                 'id_department', 
                 'id_category', 
-                'status'    
+                'status',
+                'in_discount',
+                'discount',
+                'system_code'
             ],
             transaction
         });
@@ -90,7 +96,6 @@ export const createProduct = async (req, res) => {
                 id: product.id
             },
             include: [
-                { model: Brands, as: 'brand' },
                 { model: Departments, as: 'department' },
                 { model: Categories, as: 'category' },
             ]
@@ -101,7 +106,7 @@ export const createProduct = async (req, res) => {
             msg: 'Producto creado con exito'
         });
     } catch (error) {
-        await transaction.rollback();
+        console.log(error);
         res.status(500).json({
             msg: error.errors[0].message
         });

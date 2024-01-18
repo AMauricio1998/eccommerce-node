@@ -2,7 +2,6 @@ import { Sequelize, DataTypes } from "sequelize";
 import conectarDB from '../config/db.js';
 import Departments from "./Departments.js";
 import Categories from "./Categories.js";
-import ImagesProduct from "./ImagesProduct.js";
 import Brands from "./Brands.js";
 
 const Product = {
@@ -48,17 +47,14 @@ const Products = conectarDB.define('products', {
             }
         }
     },
+    image_default: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+    },
     price: {
         type: DataTypes.FLOAT(10, 2),
         allowNull: false,
         defaultValue: 0.00,
-    },
-    id_brand: {
-        type: DataTypes.UUID,
-        references: {
-            model: 'Brands',
-            key: 'id'
-        }
     },
     id_department: {
         type: DataTypes.UUID,
@@ -79,13 +75,34 @@ const Products = conectarDB.define('products', {
         allowNull: false,
         defaultValue: Product.borrador,
     },
+    in_discount: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: false
+    },
+    discount: {
+        type: DataTypes.FLOAT(10, 2),
+        allowNull: true,
+        defaultValue: 0.00,
+    },
+    system_code: {
+        type: DataTypes.STRING(60),
+        allowNull: true,
+        unique: {
+            args: true,
+            msg: 'El código ya está registrado'
+        },
+    },
+    likes: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+    },
 }, {
     timestamps: true,
 });
 
-Products.belongsTo(Brands, { foreignKey: 'id_brand', as: 'brand', onDelete: 'CASCADE' });
 Products.belongsTo(Departments, { foreignKey: 'id_department', as: 'department', onDelete: 'CASCADE' });
 Products.belongsTo(Categories, { foreignKey: 'id_category', as: 'category', onDelete: 'CASCADE' });
-Products.hasMany(ImagesProduct, { as: 'images', foreignKey: 'id_product' });
 
 export default Products;

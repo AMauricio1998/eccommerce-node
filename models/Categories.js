@@ -27,6 +27,16 @@ const Categories = conectarDB.define('categories', {
             }   
         }
     },
+    description: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        validate: {
+            len: {
+                args: [3, 255],
+                msg: 'La descripción debe tener entre 3 y 255 caracteres'
+            }   
+        }
+    },
     slug: {
         type: DataTypes.STRING(60),
         allowNull: false,

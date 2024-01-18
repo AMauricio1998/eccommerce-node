@@ -1,5 +1,6 @@
 import { Sequelize, DataTypes  } from "sequelize";
 import conectarDB from '../config/db.js';
+import Products from "./Products.js";
 
 const ImagesProduct = conectarDB.define('images_product', {
     id: {

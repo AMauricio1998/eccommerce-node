@@ -11,7 +11,6 @@ import BrandsRoutes from './routes/BrandsRoutes.js';
 import CategoriesRoutes from './routes/CategoriesRoutes.js';
 import DepartmentsRoutes from './routes/DepartmentsRoutes.js';
 import ProductsRoutes from './routes/ProductsRoutes.js';
-import Warehouses from './models/Warehouses.js';
 
 //modelos 
 import Departments from './models/Departments.js';
@@ -21,6 +20,9 @@ import Users from './models/Users.js';
 import UserAddress from './models/UserAddress.js';
 import Categories from './models/Categories.js';
 import Products from './models/Products.js';
+import ElectronicProducts from './models/ElectronicProducts.js';
+import ClothingProducts from './models/ClothingProducts.js';
+import HomeGoodsProducts from './models/HomeGoodsProducts.js';
 import ImagesProduct from './models/ImagesProduct.js';
 
 admin.initializeApp({
