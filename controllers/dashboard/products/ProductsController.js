@@ -112,3 +112,15 @@ export const createProduct = async (req, res) => {
         });
     }
 }
+
+export const getProductsMostLiked = async (req, res) => {
+    const products = await Products.findAll({
+        order: [
+            ['likes', 'DESC']
+        ],
+        limit: 5
+    });
+    res.json({
+        data: products
+    });
+}

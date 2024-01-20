@@ -23,7 +23,11 @@ import Products from './models/Products.js';
 import ElectronicProducts from './models/ElectronicProducts.js';
 import ClothingProducts from './models/ClothingProducts.js';
 import HomeGoodsProducts from './models/HomeGoodsProducts.js';
+import Warehouses from './models/Warehouses.js';
+import WarehousesDetail from './models/WarehouseDetails.js';
 import ImagesProduct from './models/ImagesProduct.js';
+import Wishlist from './models/Wishlist.js';
+import Comment from './models/Comment.js';
 
 admin.initializeApp({
     creadential: admin.credential.cert('./serviceAccountKey.json'),
@@ -35,11 +39,27 @@ connectDB.sync()
 
 const app = express();
 
+dotenv.config();
+
 app.use(loger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-dotenv.config();
+
+//Configurar cors
+const whiteList = [process.env.FRONTEND_URL];
+const corsOptions = {
+    origin: function(origin, callback) {
+        if (whiteList.includes(origin)) {
+            //Puede consultar la api
+            callback(null, true);
+        } else {
+            callback(new Error("Error de Cors"))
+        }
+    }
+};
+
+app.use(cors(corsOptions));
 
 app.use("/api/roles", RolesRoute);
 app.use("/api/users", UserRoutes);

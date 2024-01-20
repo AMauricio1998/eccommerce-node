@@ -192,3 +192,9 @@ export const newPassword = async (req, res) => {
         return res.status(404).json({ msg: error.message });
     }
 }
+
+export const profileUser = async (req, res) => {
+    const { user } = req;
+
+    res.json({ user })
+}

@@ -6,7 +6,8 @@ import {
     confirmAccount, 
     rememberPassword, 
     checkToken, 
-    newPassword 
+    newPassword, 
+    profileUser
 } from '../controllers/users/UserController.js';
 import checkAuth from '../middleware/checkAuth.js';
 const router = express.Router();
@@ -17,5 +18,6 @@ router.post('/login', authUser);
 router.get('/confirm-account/:token', confirmAccount);
 router.post('/remember-password', rememberPassword);
 router.route('/remember-password/:token').get(checkToken).patch(newPassword);
+router.get('/profile', checkAuth, profileUser);
 
 export default router;
