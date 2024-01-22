@@ -63,7 +63,8 @@ export const authUser = async (req, res, next) => {
     const { email, password } = req.body;
 
     // comprobar si el usuario existe
-    const usuario = await Users.findOne({ where: { email } });
+    
+    const usuario = await Users.findOne({ where: { email }, include: 'role' });
     if(!usuario) {
         const error = new Error('El usuario no existe');
         return res.status(404).json({ msg: error.message });
@@ -82,7 +83,7 @@ export const authUser = async (req, res, next) => {
             id: usuario.id,
             name: usuario.name,
             email: usuario.email,
-            token: generarJWT(usuario.id, usuario.id_role)
+            token: generarJWT(usuario.id, usuario.role.name)
         });
     } else {
         const error = new Error('Contraseña incorrecta');
@@ -194,6 +195,7 @@ export const newPassword = async (req, res) => {
 }
 
 export const profileUser = async (req, res) => {
+    console.log(req)
     const { user } = req;
 
     res.json({ user })
