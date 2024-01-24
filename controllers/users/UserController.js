@@ -91,7 +91,9 @@ export const authUser = async (req, res, next) => {
         res.json({
             id: usuario.id,
             name: usuario.name,
+            surname: usuario.surname,
             email: usuario.email,
+            phone: usuario.phone,
             token: generarJWT(usuario.id, usuario.role.name),
             user_address: usuario.user_address
         });
