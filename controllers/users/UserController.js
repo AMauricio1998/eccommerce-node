@@ -207,7 +207,13 @@ export const newPassword = async (req, res) => {
 }
 
 export const profileUser = async (req, res) => {
-    const { user } = req;
+    const user = await Users.findOne({ 
+        where: { id: req.user.id}, 
+        include: [
+            { model: Roles, as: 'role'},
+            { model: UserAddress, as: 'user_address' }
+        ],
+    });
 
     res.json({ user })
 }
@@ -219,7 +225,13 @@ export const updateUser = async (req, res) => {
     const transaction = await Sequelize.transaction();
 
     try {
-        const user = await Users.findOne({ where: { id } });
+        const user = await Users.findOne({ 
+            where: { id },
+            include: [
+                { model: Roles, as: 'role'},
+                { model: UserAddress, as: 'user_address' }
+            ],
+        });
 
         if(!user) {
             const error = new Error('El usuario no existe');
