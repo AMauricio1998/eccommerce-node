@@ -9,6 +9,6 @@ const router = express.Router();
 router.route('/:id_user')
     .get(checkAuth, getAddress)
     .post(checkAuth, newAddress);
-router.put('/set-defaulta-ddress', checkAuth, setDefaultAddress);
+router.put('/set-default-ddress/:id', checkAuth, setDefaultAddress);
 router.delete('/:id', checkAuth, deleteAddress);
 export default router;

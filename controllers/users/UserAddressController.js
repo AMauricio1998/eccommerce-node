@@ -59,8 +59,8 @@ export const newAddress = async (req, res) => {
 
 export const setDefaultAddress = async (req, res) => {
     const transaction = await Sequelize.transaction();
-    const { id_user, id } = req.body;
-
+    const { id_user } = req.body;
+    const { id } = req.params;
     try {
         // verificar si la direccion pertenece al usuario
         const address = await UserAddress.findOne({ where: { id_user, id } });
