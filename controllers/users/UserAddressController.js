@@ -57,6 +57,7 @@ export const newAddress = async (req, res) => {
     }
 }
 
+
 export const setDefaultAddress = async (req, res) => {
     const transaction = await Sequelize.transaction();
     const { id_user, id } = req.body;
