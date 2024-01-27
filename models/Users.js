@@ -82,6 +82,5 @@ Users.prototype.verificarPassword = function(password) {
 }
 
 Users.belongsTo(Roles, { foreignKey: 'id_role', as: 'role' });
-Users.hasMany(UserAddress, { as: 'address', foreignKey: 'id_user' });
-
+Users.hasMany(UserAddress, { foreignKey: 'id_user', as: 'user_address' });
 export default Users;

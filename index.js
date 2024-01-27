@@ -17,7 +17,6 @@ import Departments from './models/Departments.js';
 import Brands from './models/Brands.js';
 import Roles from './models/Roles.js';
 import Users from './models/Users.js';
-import UserAddress from './models/UserAddress.js';
 import Categories from './models/Categories.js';
 import Products from './models/Products.js';
 import ElectronicProducts from './models/ElectronicProducts.js';
@@ -28,6 +27,7 @@ import WarehousesDetail from './models/WarehouseDetails.js';
 import ImagesProduct from './models/ImagesProduct.js';
 import Wishlist from './models/Wishlist.js';
 import Comment from './models/Comment.js';
+import UserAddress from './models/UserAddress.js';
 
 admin.initializeApp({
     creadential: admin.credential.cert('./serviceAccountKey.json'),

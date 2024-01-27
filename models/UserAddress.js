@@ -89,7 +89,13 @@ const UserAddress = conectarDB.define('user_address', {
     },
 },{
     timestamps: true,
-    freezeTableName: true,
 });
+
+UserAddress.associate = (models) => { 
+    UserAddress.belongsTo(models.Users, {
+        as: 'user',
+        foreignKey: 'id_user'
+    });
+}
 
 export default UserAddress;

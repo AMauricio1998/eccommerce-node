@@ -4,6 +4,8 @@ import generarJWT from "../../helpers/generarJWT.js";
 import generarId from "../../helpers/generarId.js";
 import { emailRememberPassword, registerEmail } from "../../helpers/email.js";
 import Sequelize from "../../config/db.js";
+import UserAddress from "../../models/UserAddress.js";
+import Roles from "../../models/Roles.js";
 
 // Obtener todos los usuarios
 export const getUsers = async (req, res, next) => {
@@ -64,7 +66,14 @@ export const authUser = async (req, res, next) => {
 
     // comprobar si el usuario existe
     
-    const usuario = await Users.findOne({ where: { email }, include: 'role' });
+    const usuario = await Users.findOne({ 
+        where: { email }, 
+        include: [
+            { model: Roles, as: 'role'},
+            { model: UserAddress, as: 'user_address' }
+        ],
+    });
+
     if(!usuario) {
         const error = new Error('El usuario no existe');
         return res.status(404).json({ msg: error.message });
@@ -82,8 +91,11 @@ export const authUser = async (req, res, next) => {
         res.json({
             id: usuario.id,
             name: usuario.name,
+            surname: usuario.surname,
             email: usuario.email,
-            token: generarJWT(usuario.id, usuario.role.name)
+            phone: usuario.phone,
+            token: generarJWT(usuario.id, usuario.role.name),
+            user_address: usuario.user_address
         });
     } else {
         const error = new Error('Contraseña incorrecta');
@@ -195,8 +207,53 @@ export const newPassword = async (req, res) => {
 }
 
 export const profileUser = async (req, res) => {
-    console.log(req)
-    const { user } = req;
+    const user = await Users.findOne({ 
+        where: { id: req.user.id}, 
+        include: [
+            { model: Roles, as: 'role'},
+            { model: UserAddress, as: 'user_address' }
+        ],
+    });
 
     res.json({ user })
+}
+
+// actualizar usuario
+export const updateUser = async (req, res) => {
+    const { id } = req.params;
+    const { name, surname, phone } = req.body;
+    const transaction = await Sequelize.transaction();
+
+    try {
+        const user = await Users.findOne({ 
+            where: { id },
+            include: [
+                { model: Roles, as: 'role'},
+                { model: UserAddress, as: 'user_address' }
+            ],
+        });
+
+        if(!user) {
+            const error = new Error('El usuario no existe');
+            return res.status(404).json({ msg: error.message });
+        }
+
+        user.name = name;
+        user.surname = surname;
+        user.phone = phone;
+
+        await user.save({
+            transaction
+        });
+
+        await transaction.commit();
+
+        res.json({
+            msg: 'Usuario actualizado correctamente',
+            data: user
+        });
+    } catch (error) {
+        await transaction.rollback();
+        res.status(500).json({ msg: error.errors[0].message });
+    }
 }
