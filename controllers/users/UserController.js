@@ -207,15 +207,19 @@ export const newPassword = async (req, res) => {
 }
 
 export const profileUser = async (req, res) => {
-    const user = await Users.findOne({ 
-        where: { id: req.user.id}, 
-        include: [
-            { model: Roles, as: 'role'},
-            { model: UserAddress, as: 'user_address' }
-        ],
-    });
-
-    res.json({ user })
+    try {
+        const user = await Users.findOne({ 
+            where: { id: req.user.id}, 
+            include: [
+                { model: Roles, as: 'role'},
+                { model: UserAddress, as: 'user_address' }
+            ],
+        });
+    
+        res.json({ user })
+    } catch (error) {
+        console.log(error)
+    }
 }
 
 // actualizar usuario
