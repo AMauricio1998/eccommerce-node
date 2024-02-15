@@ -4,7 +4,9 @@ import storage from '../../utils/cloud_storage.js';
 
 export const getCategories = async (req, res, next) => {
     try {
-        const categories = await Categories.findAll();
+        const categories = await Categories.findAll({
+            include: 'department'
+        });
         
         res.json({
             categories
@@ -19,7 +21,9 @@ export const getCategories = async (req, res, next) => {
 export const getCategory = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const category = await Categories.findByPk(id);
+        const category = await Categories.findByPk(id, {
+            include: 'department'
+        });
 
         if(!category) {
             return res.status(404).json({
@@ -40,7 +44,7 @@ export const getCategory = async (req, res, next) => {
 export const createCategory = async (req, res, next) => {
     const transaction = await Sequelize.transaction();
     try {
-        const { name, slug, banner, id_department } = req.body;
+        const { name, slug, banner, id_department, description, status } = req.body;
         const files = req.files;
         let img = null;
 
@@ -53,14 +57,19 @@ export const createCategory = async (req, res, next) => {
             }
         }
 
-        const category = await Categories.create({ 
-            name, slug, banner, img, id_department
+        const newCategory = await Categories.create({ 
+            name, slug, banner, img, id_department, description, active: status
         }, {
-            fields: ['name', 'slug', 'banner', 'img', 'id_department'],
+            fields: ['name', 'slug', 'banner', 'img', 'id_department', 'description', 'active'],
             transaction
         });
 
         await transaction.commit();
+
+        const category = await Categories.findByPk(newCategory.id, {
+            include: 'department',
+        });
+
         res.json({
             msg: 'Categoria creada correctamente',
             data: category
