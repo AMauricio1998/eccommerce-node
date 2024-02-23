@@ -88,13 +88,21 @@ export const authUser = async (req, res, next) => {
     // comprobar password
     if(await usuario.verificarPassword(password)) {
         // crear token
+        const token = generarJWT(usuario.id, usuario.role.name);
+
+        res.cookie('token', token, { 
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+            expires: new Date(Date.now() + 24 * 3600000)
+        });
+
         res.json({
             id: usuario.id,
             name: usuario.name,
             surname: usuario.surname,
             email: usuario.email,
             phone: usuario.phone,
-            token: generarJWT(usuario.id, usuario.role.name),
             user_address: usuario.user_address
         });
     } else {
@@ -260,4 +268,19 @@ export const updateUser = async (req, res) => {
         await transaction.rollback();
         res.status(500).json({ msg: error.errors[0].message });
     }
+}
+
+export const logout = async (req, res) => {
+    res.clearCookie('token');
+    res.json({
+        msg: 'Sesion cerrada correctamente'
+    });
+}
+
+export const getRoleUser = async (req, res) => {
+    const nameRole = await Roles.findOne({ where: { id: req.user.id_role } });
+
+    return res.json({
+        role: nameRole
+    });
 }

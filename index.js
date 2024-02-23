@@ -1,4 +1,5 @@
 import express from 'express';
+import cookieParser from "cookie-parser";
 import dotenv from 'dotenv';
 import cors from 'cors';
 import admin from 'firebase-admin';
@@ -39,6 +40,8 @@ connectDB.sync()
 
 const app = express();
 
+app.use(cookieParser());
+
 dotenv.config();
 
 app.use(loger('dev'));
@@ -56,7 +59,8 @@ const corsOptions = {
         } else {
             callback(new Error("Error de Cors"))
         }
-    }
+    },
+    credentials: true
 };
 
 app.use(cors(corsOptions));
