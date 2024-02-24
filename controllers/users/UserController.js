@@ -82,7 +82,7 @@ export const authUser = async (req, res, next) => {
     // comprobar si el usuario esta confirmado
     if(!usuario.confirmed) {
         const error = new Error('El usuario no esta confirmado');
-        return res.status(401).json({ msg: error.message });
+        return res.status(404).json({ msg: error.message });
     }
 
     // comprobar password
@@ -103,11 +103,12 @@ export const authUser = async (req, res, next) => {
             surname: usuario.surname,
             email: usuario.email,
             phone: usuario.phone,
-            user_address: usuario.user_address
+            user_address: usuario.user_address,
+            role: usuario.role.name,
         });
     } else {
         const error = new Error('Contraseña incorrecta');
-        return res.status(401).json({ msg: error.message });
+        return res.status(404).json({ msg: error.message });
     }
 }
 
@@ -226,7 +227,7 @@ export const profileUser = async (req, res) => {
     
         res.json({ user })
     } catch (error) {
-        console.log(error)
+        res.status(500).json({ msg: "Error interno del servidor" });
     }
 }
 

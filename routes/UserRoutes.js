@@ -24,6 +24,6 @@ router.route('/remember-password/:token').get(checkToken).patch(newPassword);
 router.get('/profile', checkAuth, profileUser);
 router.put('/profile/:id', checkAuth, updateUser);
 router.post('/logout', checkAuth, logout);
-router.get('/check-role', checkAuth, checkAuth, getRoleUser);
+router.get('/check-role', checkAuth, getRoleUser);
 
 export default router;
