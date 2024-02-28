@@ -5,7 +5,10 @@ import storage from '../../utils/cloud_storage.js';
 export const getCategories = async (req, res, next) => {
     try {
         const categories = await Categories.findAll({
-            include: 'department'
+            include: 'department',
+            order: [
+                ['createdAt', 'DESC']
+            ]
         });
         
         res.json({
@@ -75,7 +78,6 @@ export const createCategory = async (req, res, next) => {
             data: category
         });
     } catch (error) {
-        console.log(error)
         await transaction.rollback();
         res.status(501).json({
             msg: 'Ocurrio un error al crear la categoria'
@@ -87,9 +89,8 @@ export const updateCategory = async (req, res, next) => {
     const transaction = await Sequelize.transaction();
     try {
         const { id } = req.params;
-        const { name, slug, banner, id_department } = req.body;
+        const { name, slug, banner, id_department, image } = req.body;
         const files = req.files;
-        let img = null;
 
         const category = await Categories.findByPk(id);
 
@@ -99,10 +100,10 @@ export const updateCategory = async (req, res, next) => {
             });
         }
 
+        let img = category.img;
         //Subir imagen
-        const deletePathImage = category.img;
-
         if(files.length > 0) {
+            const deletePathImage = category.img;
             const pathImage = `image_category${Date.now()}`;
             const url = await storage(files[0], pathImage, deletePathImage);
             if(url != undefined && url != null) {
@@ -119,9 +120,13 @@ export const updateCategory = async (req, res, next) => {
 
         await transaction.commit();
 
+        const updatedCategory = await Categories.findByPk(id, {
+            include: 'department',
+        });
+
         res.json({
             msg: 'Categoria actualizada correctamente',
-            data: category
+            data: updatedCategory
         });
     } catch (error) {
         await transaction.rollback();

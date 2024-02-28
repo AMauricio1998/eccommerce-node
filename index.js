@@ -54,7 +54,6 @@ const whiteList = [process.env.FRONTEND_URL];
 const corsOptions = {
     origin: function(origin, callback) {
         if (whiteList.includes(origin)) {
-            //Puede consultar la api
             callback(null, true);
         } else {
             callback(new Error("Error de Cors"))
