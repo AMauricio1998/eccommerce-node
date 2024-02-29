@@ -86,10 +86,12 @@ export const createCategory = async (req, res, next) => {
 }
 
 export const updateCategory = async (req, res, next) => {
+    console.log(req.body);
     const transaction = await Sequelize.transaction();
     try {
         const { id } = req.params;
-        const { name, slug, banner, id_department, image } = req.body;
+        const { name, slug, banner, id_department, image, status } = req.body;
+        const isActive = status === 'true' ? true : false;
         const files = req.files;
 
         const category = await Categories.findByPk(id);
@@ -112,7 +114,7 @@ export const updateCategory = async (req, res, next) => {
         }
 
         await Categories.update({ 
-            name, slug, banner, img, id_department
+            name, slug, banner, img, id_department, active: isActive
         }, {
             where: { id },
             transaction
