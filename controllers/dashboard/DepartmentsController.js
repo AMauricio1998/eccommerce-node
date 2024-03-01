@@ -40,3 +40,32 @@ export const createDepartment = async (req, res) => {
         });
     }
 }
+
+export const updateDepartment = async (req, res) => {
+    const transaction = await Sequelize.transaction();
+    try {
+        const { id } = req.params;
+        const { name } = req.body;
+        const department = await Departments.findByPk(id);
+        await department.update({ 
+            name
+        }, {
+            fields: ['name'],
+            transaction
+        });
+
+        await transaction.commit();
+
+        const updatedDepartment = await Departments.findByPk(id);
+
+        res.json({
+            msg: 'Departamento actualizado correctamente',
+            department: updatedDepartment
+        });
+    } catch (error) {
+        await transaction.rollback();
+        res.status(500).json({
+            msg: 'Ocurrio un error al actualizar el departamento'
+        });
+    }
+}
