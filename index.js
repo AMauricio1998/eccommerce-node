@@ -1,4 +1,5 @@
 import express from 'express';
+import cookieParser from "cookie-parser";
 import dotenv from 'dotenv';
 import cors from 'cors';
 import admin from 'firebase-admin';
@@ -39,6 +40,8 @@ connectDB.sync()
 
 const app = express();
 
+app.use(cookieParser());
+
 dotenv.config();
 
 app.use(loger('dev'));
@@ -51,12 +54,12 @@ const whiteList = [process.env.FRONTEND_URL];
 const corsOptions = {
     origin: function(origin, callback) {
         if (whiteList.includes(origin)) {
-            //Puede consultar la api
             callback(null, true);
         } else {
             callback(new Error("Error de Cors"))
         }
-    }
+    },
+    credentials: true
 };
 
 app.use(cors(corsOptions));

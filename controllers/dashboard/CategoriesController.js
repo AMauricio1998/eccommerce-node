@@ -4,7 +4,12 @@ import storage from '../../utils/cloud_storage.js';
 
 export const getCategories = async (req, res, next) => {
     try {
-        const categories = await Categories.findAll();
+        const categories = await Categories.findAll({
+            include: 'department',
+            order: [
+                ['createdAt', 'DESC']
+            ]
+        });
         
         res.json({
             categories
@@ -19,7 +24,9 @@ export const getCategories = async (req, res, next) => {
 export const getCategory = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const category = await Categories.findByPk(id);
+        const category = await Categories.findByPk(id, {
+            include: 'department'
+        });
 
         if(!category) {
             return res.status(404).json({
@@ -40,7 +47,7 @@ export const getCategory = async (req, res, next) => {
 export const createCategory = async (req, res, next) => {
     const transaction = await Sequelize.transaction();
     try {
-        const { name, slug, banner, id_department } = req.body;
+        const { name, slug, banner, id_department, description, status } = req.body;
         const files = req.files;
         let img = null;
 
@@ -53,20 +60,24 @@ export const createCategory = async (req, res, next) => {
             }
         }
 
-        const category = await Categories.create({ 
-            name, slug, banner, img, id_department
+        const newCategory = await Categories.create({ 
+            name, slug, banner, img, id_department, description, active: status
         }, {
-            fields: ['name', 'slug', 'banner', 'img', 'id_department'],
+            fields: ['name', 'slug', 'banner', 'img', 'id_department', 'description', 'active'],
             transaction
         });
 
         await transaction.commit();
+
+        const category = await Categories.findByPk(newCategory.id, {
+            include: 'department',
+        });
+
         res.json({
             msg: 'Categoria creada correctamente',
             data: category
         });
     } catch (error) {
-        console.log(error)
         await transaction.rollback();
         res.status(501).json({
             msg: 'Ocurrio un error al crear la categoria'
@@ -75,12 +86,13 @@ export const createCategory = async (req, res, next) => {
 }
 
 export const updateCategory = async (req, res, next) => {
+    console.log(req.body);
     const transaction = await Sequelize.transaction();
     try {
         const { id } = req.params;
-        const { name, slug, banner, id_department } = req.body;
+        const { name, slug, banner, id_department, image, status } = req.body;
+        const isActive = status === 'true' ? true : false;
         const files = req.files;
-        let img = null;
 
         const category = await Categories.findByPk(id);
 
@@ -90,10 +102,10 @@ export const updateCategory = async (req, res, next) => {
             });
         }
 
+        let img = category.img;
         //Subir imagen
-        const deletePathImage = category.img;
-
         if(files.length > 0) {
+            const deletePathImage = category.img;
             const pathImage = `image_category${Date.now()}`;
             const url = await storage(files[0], pathImage, deletePathImage);
             if(url != undefined && url != null) {
@@ -102,7 +114,7 @@ export const updateCategory = async (req, res, next) => {
         }
 
         await Categories.update({ 
-            name, slug, banner, img, id_department
+            name, slug, banner, img, id_department, active: isActive
         }, {
             where: { id },
             transaction
@@ -110,9 +122,13 @@ export const updateCategory = async (req, res, next) => {
 
         await transaction.commit();
 
+        const updatedCategory = await Categories.findByPk(id, {
+            include: 'department',
+        });
+
         res.json({
             msg: 'Categoria actualizada correctamente',
-            data: category
+            data: updatedCategory
         });
     } catch (error) {
         await transaction.rollback();

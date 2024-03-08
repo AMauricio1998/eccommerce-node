@@ -2,20 +2,15 @@ import jwt from "jsonwebtoken";
 import Users from "../models/Users.js";
 
 const checkAuth = async (req, res, next) => {
-  let token;
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
+  let token = req.cookies['token'];
+  
+  if (token) {
     try {
-      token = req.headers.authorization.split(" ")[1];
-
       const decoded = jwt.verify(token, process.env.SECRET_KEY);
       req.user = await Users.findByPk(decoded.id);
-
       return next();
     } catch (error) {
-      return res.status(404).json({ msg: "Hubo un error" });
+      return res.status(401).json({ msg: "Hubo un error" });
     }
   }
 

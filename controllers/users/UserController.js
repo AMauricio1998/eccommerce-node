@@ -82,24 +82,33 @@ export const authUser = async (req, res, next) => {
     // comprobar si el usuario esta confirmado
     if(!usuario.confirmed) {
         const error = new Error('El usuario no esta confirmado');
-        return res.status(401).json({ msg: error.message });
+        return res.status(404).json({ msg: error.message });
     }
 
     // comprobar password
     if(await usuario.verificarPassword(password)) {
         // crear token
+        const token = generarJWT(usuario.id, usuario.role.name);
+
+        res.cookie('token', token, { 
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+            expires: new Date(Date.now() + 24 * 3600000)
+        });
+
         res.json({
             id: usuario.id,
             name: usuario.name,
             surname: usuario.surname,
             email: usuario.email,
             phone: usuario.phone,
-            token: generarJWT(usuario.id, usuario.role.name),
-            user_address: usuario.user_address
+            user_address: usuario.user_address,
+            role: usuario.role.name,
         });
     } else {
         const error = new Error('Contraseña incorrecta');
-        return res.status(401).json({ msg: error.message });
+        return res.status(404).json({ msg: error.message });
     }
 }
 
@@ -218,7 +227,7 @@ export const profileUser = async (req, res) => {
     
         res.json({ user })
     } catch (error) {
-        console.log(error)
+        res.status(500).json({ msg: "Error interno del servidor" });
     }
 }
 
@@ -260,4 +269,19 @@ export const updateUser = async (req, res) => {
         await transaction.rollback();
         res.status(500).json({ msg: error.errors[0].message });
     }
+}
+
+export const logout = async (req, res) => {
+    res.clearCookie('token');
+    res.json({
+        msg: 'Sesion cerrada correctamente'
+    });
+}
+
+export const getRoleUser = async (req, res) => {
+    const nameRole = await Roles.findOne({ where: { id: req.user.id_role } });
+
+    return res.json({
+        role: nameRole
+    });
 }
