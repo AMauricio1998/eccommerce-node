@@ -1,4 +1,3 @@
-import storage from '../../../utils/cloud_storage.js';
 import Sequelize from "../../../config/db.js";
 import Departments from '../../../models/Departments.js';
 import Categories from '../../../models/Categories.js';
@@ -37,6 +36,25 @@ export const getProductsFromCategory = async (req, res) =>{
     res.json({
         data: products
     });
+}
+
+export const getProducts = async (req, res, next) => {
+    try {
+        const products = await Products.findAll({
+            attributes: ['id', 'name', 'slug', 'price', 'status', 'in_discount', 'discount', 'system_code'],
+            include: [
+                { model: Departments, as: 'department', attributes: ['id', 'name']},
+                { model: Categories, as: 'category', attributes: ['id', 'name']},
+            ],
+        })
+        res.json({
+            data: products
+        })
+    } catch (error) {
+        res.status(500).json({
+            msg: error
+        });
+    }
 }
 
 export const getProduct = async (req, res) => {
